@@ -1,0 +1,19 @@
+Vagrant.configure("2") do |config|
+  config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+
+  config.vm.define :probe do |probe|
+    probe.vm.box = "precise32"
+    probe.vm.network :private_network, ip: "10.12.0.10"
+  end
+
+  config.vm.define :backend do |backend|
+    backend.vm.box = "precise32"
+    backend.vm.network :private_network, ip: "10.13.0.10"
+  end
+  
+  config.vm.define :router do |router|
+    router.vm.box = "precise32"
+    router.vm.network :private_network, ip: "10.12.0.1"
+    router.vm.network :private_network, ip: "10.13.0.1"
+  end
+end
