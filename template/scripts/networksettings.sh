@@ -1,6 +1,6 @@
 #!/bin/bash
-ifconfig eth1 up
-ifconfig eth1 $1
+ip l set eth1 up
+ip a add $1/24 dev eth1
 ## delete all existing default routes
 while ip route del default; do :; done
 

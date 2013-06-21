@@ -1,8 +1,8 @@
 $router_netsetup = <<ROUTER_NETSETUP
-ifconfig eth1 up
-ifconfig eth1 10.12.0.1
-ifconfig eth2 up
-ifconfig eth2 10.13.0.1
+ip link set eth1 up
+ip addr add 10.12.0.1/24 dev eth1
+ip link set eth2 up
+ip addr add 10.13.0.1/24 dev eth2
 ROUTER_NETSETUP
 
 Vagrant.configure("2") do |config|
