@@ -1,3 +1,4 @@
+#!/bin/bash
 apt-get -y install curl python-setuptools python-dev
 
 echo "Installing Tor..."
