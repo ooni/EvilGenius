@@ -29,7 +29,7 @@ cd /data/ooni-probe
 
 echo "Installing dependencies"
 pip install pyrex
-pip install -r requirements.txt
+pip install -r requirements.txt --use-mirrors
 
 echo "Installing ooniprobe"
 python setup.py install
