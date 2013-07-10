@@ -21,6 +21,9 @@ vagrant up
 
 This will create 3 virtual machines: **probe**, **backend** and **router**.
 
+The **probe** virtual machine has IP address 10.12.0.10, the **backend**
+virtual machine has ip address 10.13.0.10.
+
 ### Running tests
 
 You will then be able to control the various VMs you have setup.
