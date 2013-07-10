@@ -11,7 +11,7 @@ gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 apt-get update
 apt-get -y install deb.torproject.org-keyring tor tor-geoipdb
 
-apt-get -y install git-core python python-pip python-dev build-essential libdumbnet1 python-dumbnet python-libpcap python-pypcap python-dnspython python-virtualenv virtualenvwrapper tor tor-geoipdb libpcap-dev
+apt-get -y install curl git-core python python-pip python-dev build-essential libdumbnet1 python-dumbnet python-libpcap python-pypcap python-dnspython python-virtualenv virtualenvwrapper tor tor-geoipdb libpcap-dev
 
 echo "Updating to the latest version of PIP"
 cd /tmp/
