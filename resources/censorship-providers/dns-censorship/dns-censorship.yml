@@ -1,0 +1,16 @@
+name: DNS Censorship
+description: performs DNS censorship thanks to squid
+
+# This shall be run once when first setting up the censorship virtual machine
+install: dns-censorship.sh
+before_install:
+  - apt-get install curl
+after_install:
+  - apt-get install curl
+
+# This shall be run every time the censorship vm starts
+start: dns-censorship-start.sh
+
+# This shall be run every time the censorship vm stops
+stop: dns-censorship-stop.sh
+
