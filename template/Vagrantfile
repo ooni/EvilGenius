@@ -1,10 +1,3 @@
-$router_netsetup = <<ROUTER_NETSETUP
-ip link set eth1 up
-ip addr add 10.12.0.1/24 dev eth1
-ip link set eth2 up
-ip addr add 10.13.0.1/24 dev eth2
-ROUTER_NETSETUP
-
 Vagrant.configure("2") do |config|
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
   config.vm.synced_folder "./scripts", "/scripts"
@@ -43,7 +36,6 @@ Vagrant.configure("2") do |config|
     end
 
     ## add iptables rules
-    router.vm.provision :shell, :inline => $router_netsetup
-    router.vm.provision :shell, :inline => "/scripts/router_iptables.sh"
+    router.vm.provision :shell, :inline => "/scripts/setup_router.sh"
   end
 end

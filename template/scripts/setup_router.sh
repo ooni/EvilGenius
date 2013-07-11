@@ -1,5 +1,11 @@
 #!/bin/bash
 
+## set interfaces and IP addresses
+ip link set eth1 up
+ip addr add 10.12.0.1/24 dev eth1
+ip link set eth2 up
+ip addr add 10.13.0.1/24 dev eth2
+
 ## enable packet forwarding
 /sbin/sysctl -w net.ipv4.ip_forward=1
 
