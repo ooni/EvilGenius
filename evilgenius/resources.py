@@ -14,6 +14,47 @@ except ImportError:
     print "    http://bitbucket.org/xi/pyyaml"
     sys.exit(1)
 
+class CensorshipProvider(object):
+    def __init__(self, descriptor_path):
+        pass
+
+    def start(self):
+        """
+        Starts the censorship provider.
+        """
+        pass
+
+    def stop(self):
+        """
+        Stops the censorship provider and runs all the commands to be run in
+        the stop phase.
+        """
+        pass
+
+    def status(self):
+        """
+        Returns:
+            
+            string.
+
+            'running' -- the provider is running.
+
+            'stopped' -- the provider exists, but is not running.
+
+            'inexistent' -- the provider has not been created.
+        """
+        pass
+
+class NetworkMeasurementInstrument(object):
+    def __init__(self, descriptor_path):
+        pass
+
+    def run(self):
+        """
+        Run the network measurement instrument.
+        """
+        pass
+
 class EvilGeniusResources(object):
     """
     I am responsible for keeping track of all Evil Genius resources.
@@ -51,8 +92,8 @@ class EvilGeniusResources(object):
         vagrant_box = VagrantBox(name,
                                  self.censorship_providers[name]['box'],
                                  self.censorship_providers[name]['install'])
-        print vagrant_box.generate_ruby()
-    
+        print vagrant_box.definition
+   
     def list_censorship_providers(self):
         print "== [ Censorship Providers ] =="
         print ""

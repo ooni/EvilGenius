@@ -3,6 +3,43 @@ import subprocess
 
 from distutils.spawn import find_executable
 
+class NetworkTopology(object):
+    """
+    This class shall be used to store the topology of the network.
+    """
+    
+    @property
+    def router(self):
+        """
+        Returns:
+            :class:`evilgenius.vagrant.VagrantBox` 
+
+            the router to be used for this given network topology.
+        """
+        pass
+
+class VagrantFile(object):
+    def __init__(self, boxes, network):
+        """
+        Args:
+            
+            boxes (list): a list of :class:`evilgenius.vagrant.VagrantBox` instances.
+
+            network (:class:`evilgenius.vagrant.NetworkTopology`): the network
+                topology for the given Vagrantfile.
+        """
+        pass
+    
+    @property
+    def content(self):
+        """
+        Returns:
+            string.
+
+                the content of the Vagrantfile.
+        """
+        pass
+
 class VagrantBox(object):
     def __init__(self, name, box="precise32", install_scripts=[]):
         self.name = name
@@ -11,7 +48,8 @@ class VagrantBox(object):
             install_scripts = [install_scripts]
         self.install_scripts = install_scripts
 
-    def generate_ruby(self):
+    @property
+    def definition(self):
         provision_lines = ""
 
         for script in self.install_scripts:
@@ -42,6 +80,19 @@ class VagrantController(object):
             print "    Please download and install a copy of it here:"
             print "    http://downloads.vagrantup.com/"
             sys.exit(1)
+
+    def create_box(self, box):
+        """
+        Creates a new Vagrant box. If the box already exists it will raise an
+        error.
+
+        Args:
+
+            box (:class:`evilgenius.vagrant.VagrantBox`): the vagrant box to be
+                created. Will generate the appropriate VagrantFile for the
+                specified box and initialize the box.
+        """
+        pass
 
     def init(self, vm=None):
         args = ['init']
