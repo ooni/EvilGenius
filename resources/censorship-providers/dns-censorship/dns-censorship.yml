@@ -1,5 +1,6 @@
 name: DNS Censorship
 description: performs DNS censorship thanks to squid
+box: precise32
 
 # This shall be run once when first setting up the censorship virtual machine
 install: dns-censorship.sh
