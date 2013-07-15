@@ -133,7 +133,7 @@ class VagrantController(object):
 
     def _vagrant(self, command):
         args = [self.vagrant_executable] + command
-        p = subprocess.Popen(args, shell=True, cwd=self.root,
+        p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             print line,
