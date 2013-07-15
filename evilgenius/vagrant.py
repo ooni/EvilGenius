@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 
@@ -7,12 +8,12 @@ class NetworkTopology(object):
     """
     This class shall be used to store the topology of the network.
     """
-    
+
     @property
     def router(self):
         """
         Returns:
-            :class:`evilgenius.vagrant.VagrantBox` 
+            :class:`evilgenius.vagrant.VagrantBox`
 
             the router to be used for this given network topology.
         """
@@ -22,23 +23,34 @@ class VagrantFile(object):
     def __init__(self, boxes, network):
         """
         Args:
-            
+
             boxes (list): a list of :class:`evilgenius.vagrant.VagrantBox` instances.
 
             network (:class:`evilgenius.vagrant.NetworkTopology`): the network
                 topology for the given Vagrantfile.
         """
-        pass
-    
+        if type(boxes) is list:
+            self.boxes = boxes
+        else:
+            self.boxes = [boxes]
+
     @property
     def content(self):
         """
         Returns:
             string.
 
-                the content of the Vagrantfile.
+            the content of the Vagrantfile.
         """
-        pass
+        # TODO implement support for NetworkTopology
+
+        # pref
+        result = 'Vagrant.configure("2") do |config|'
+        for box in self.boxes:
+            result += box.definition
+        result += 'end'
+
+        return result
 
 class VagrantBox(object):
     def __init__(self, name, box="precise32", install_scripts=[]):
@@ -54,13 +66,13 @@ class VagrantBox(object):
 
         for script in self.install_scripts:
             provision_lines += """
-            probe.vm.provision :shell, :inline => "{script}"
-            """.format(script=script)
+            {name}.vm.provision :shell, :inline => "{script}"
+            """.format(script=script, name=self.name)
 
         code = """
         config.vm.define :{name} do |{name}|
-            probe.vm.box = "{box}"
-            probe.vm.provider :virtualbox do |vb|
+            {name}.vm.box = "{box}"
+            {name}.vm.provider :virtualbox do |vb|
               vb.customize ["modifyvm", :id, "--nic2", "intnet"]
               vb.customize ["modifyvm", :id, "--intnet2", "probe"]
             end
@@ -68,6 +80,7 @@ class VagrantBox(object):
         end
         """.format(box=self.box, name=self.name, provision_lines=provision_lines)
         return code
+
 
 class VagrantController(object):
     def __init__(self, root=None):
@@ -81,6 +94,9 @@ class VagrantController(object):
             print "    http://downloads.vagrantup.com/"
             sys.exit(1)
 
+        with open(os.path.join(root, 'Vagrantfile'), 'wb') as f:
+            f.write("Dir.glob('*.vagrant.rb') {|file| load file}")
+
     def create_box(self, box):
         """
         Creates a new Vagrant box. If the box already exists it will raise an
@@ -92,7 +108,10 @@ class VagrantController(object):
                 created. Will generate the appropriate VagrantFile for the
                 specified box and initialize the box.
         """
-        pass
+        vfile = VagrantFile(box, None)  # TODO: add NetworkTopology Support
+        f = open(os.path.join(self.root, box.name + '.vagrant.rb'), 'wb')
+        f.write(vfile.content)
+        f.close()
 
     def init(self, vm=None):
         args = ['init']

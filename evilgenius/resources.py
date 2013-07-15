@@ -14,9 +14,35 @@ except ImportError:
     print "    http://bitbucket.org/xi/pyyaml"
     sys.exit(1)
 
+
 class CensorshipProvider(object):
     def __init__(self, descriptor_path):
-        pass
+        with open(descriptor_path) as f:
+            self.config = yaml.load(f)
+
+        self.id = os.path.basename(os.path.dirname(descriptor_path))\
+            .replace("-", "")
+
+        # prepare instal scripts in order
+        if type(self.config['before_install']) is list:
+            install_scripts = self.config['before_install']
+        else:
+            install_scripts = [self.config['before_install']]
+
+        if type(self.config['install']) is list:
+            install_scripts.extend(self.config['install'])
+        else:
+            install_scripts.append(self.config['install'])
+
+        if type(self.config['after_install']) is list:
+            install_scripts.extend(self.config['after_install'])
+        else:
+            install_scripts.append(self.config['after_install'])
+
+        self.box = VagrantBox(
+            name=self.id,
+            box=self.config['box'],
+            install_scripts=install_scripts)
 
     def start(self):
         """
@@ -31,10 +57,17 @@ class CensorshipProvider(object):
         """
         pass
 
-    def status(self):
+    def status(self, controller):
         """
+        Args:
+
+            controller
+
+                the :class:`evilgenius.vagrant.VagrantController` that should
+                should be queried.
+
         Returns:
-            
+
             string.
 
             'running' -- the provider is running.
@@ -43,7 +76,9 @@ class CensorshipProvider(object):
 
             'inexistent' -- the provider has not been created.
         """
+
         pass
+
 
 class NetworkMeasurementInstrument(object):
     def __init__(self, descriptor_path):
@@ -54,6 +89,7 @@ class NetworkMeasurementInstrument(object):
         Run the network measurement instrument.
         """
         pass
+
 
 class EvilGeniusResources(object):
     """
@@ -74,7 +110,6 @@ class EvilGeniusResources(object):
                                                  'censorship-providers')
         self.network_measurement_directory = opj(self.resources_path,
                                                  'network-measurement-instruments')
-
         self.censorship_providers = {}
         self.network_measurement_instruments = {}
 
@@ -93,7 +128,7 @@ class EvilGeniusResources(object):
                                  self.censorship_providers[name]['box'],
                                  self.censorship_providers[name]['install'])
         print vagrant_box.definition
-   
+
     def list_censorship_providers(self):
         print "== [ Censorship Providers ] =="
         print ""
