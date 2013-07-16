@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 import subprocess
@@ -131,10 +132,59 @@ class VagrantController(object):
             args += vm
         self._vagrant(args)
 
+    def status(self, vm=None):
+        args = ['status']
+        if vm:
+            args += vm
+
+        output_lines = self._vagrant(args)[1]
+
+        state = 1
+
+        RUNNING = 'running' # vagrant up
+        NOT_CREATED = 'not created' # vagrant destroy
+        POWEROFF = 'poweroff' # vagrant halt
+        ABORTED = 'aborted' # The VM is in an aborted state
+        SAVED = 'saved' # vagrant suspend
+        STATUSES = (RUNNING, NOT_CREATED, POWEROFF, ABORTED, SAVED)
+
+        statuses = {}
+
+        def parse_provider_line(line):
+            m = re.search(r'^\s*(?P<value>.+?)\s+\((?P<provider>[^)]+)\)\s*$',
+                        line)
+            if m:
+                return m.group('value'), m.group('provider')
+            else:
+                return line.strip(), None
+
+        for line in output_lines:
+            if state == 1 and re.search('^Current (VM|machine) states:', line.strip()):
+                state = 2 # looking for the blank line
+            elif state == 2 and line.strip() == '':
+                state = 3 # looking for machine status lines
+            elif state == 3 and line.strip() != '':
+                vm_name_and_status, provider = parse_provider_line(line)
+                # Split vm_name from status. Only works for recognized statuses.
+                m = re.search(r'^(?P<vm_name>.*?)\s+(?P<status>' +
+                                '|'.join(STATUSES) + ')$',
+                                vm_name_and_status)
+                if not m:
+                    raise Exception('ParseError: Failed to properly parse vm name and status from line.', line, output)
+                else:
+                    statuses[m.group('vm_name')] = m.group('status')
+            elif state == 3 and not line.strip():
+                break
+
+        if not vm:
+            return statuses
+        else:
+            return statuses[vm]
+
     def _vagrant(self, command):
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in p.stdout.readlines():
-            print line,
+        output_lines = p.stdout.readlines()
         retval = p.wait()
+        return (retval, output_lines)
