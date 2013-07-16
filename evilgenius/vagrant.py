@@ -134,8 +134,6 @@ class VagrantController(object):
 
     def status(self, vm=None):
         args = ['status']
-        if vm:
-            args += vm
 
         output_lines = self._vagrant(args)[1]
 
