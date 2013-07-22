@@ -5,6 +5,44 @@ import subprocess
 
 from distutils.spawn import find_executable
 
+class NetworkInterface(object):
+    """
+    Represents a virtual Network Interface
+    """
+    def __init__(self, address):
+        """
+        Creates a virtual network Interface
+
+        Args:
+            address (string): IPv4 address with netmask, like "10.11.12.13/24"
+        """
+        self.address = address  # TODO check validity
+
+class VBoxInternalNetworkingInterface(NetworkInterface):
+    """
+    Represents a internal Networking Interface specific to VirtualBox
+    """
+    def __init__(self, address, network_name):
+        """
+        Create an internal Networking Interface. Specific to VirtualBox.
+
+        Args:
+            address (string): IPv4 address with netmask, like "10.11.12.13/24"
+            network_name (string): Name of the internal network to be used.
+        """
+        NetworkInterface.__init__(self, address)
+        self.network_name = network_name
+
+
+    @property
+    def config_line(self):
+        """
+        Returns:
+            string: Configuration line for adding this Interface to the boxes
+                definition.
+        """
+        pass
+
 class NetworkTopology(object):
     """
     This class shall be used to store the topology of the network.
