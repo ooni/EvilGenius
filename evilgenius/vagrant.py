@@ -95,8 +95,14 @@ class VagrantController(object):
             print "    http://downloads.vagrantup.com/"
             sys.exit(1)
 
-        #with open(os.path.join(root, 'Vagrantfile'), 'wb') as f:
-            #f.write("Dir.glob('*.vagrant.rb') {|file| load file}")
+
+    def init_modular_vagrantfile(self):
+        """
+        Initializes a Vagrant directory so that all files with names ending
+        on ".vagrant.rb" are loaded by vagrant.
+        """
+        with open(os.path.join(self.root, 'Vagrantfile'), 'wb') as f:
+            f.write("Dir.glob('*.vagrant.rb') {|file| load file}")
 
     def create_box(self, box):
         """
