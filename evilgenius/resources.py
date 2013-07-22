@@ -50,14 +50,15 @@ class CensorshipProvider(object):
         """
         Starts the censorship provider.
         """
-        pass
+        self.controller.up(vm=self.id)
+        print self.controller.run_command(self.config.start)
 
     def stop(self):
         """
         Stops the censorship provider and runs all the commands to be run in
         the stop phase.
         """
-        pass
+        print self.controller.run_command(self.config.stop)
 
     def status(self):
         """
