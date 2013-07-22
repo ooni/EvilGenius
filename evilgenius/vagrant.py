@@ -126,7 +126,7 @@ class VagrantController(object):
         """
         args = ['init']
         if vm:
-            args += vm
+            args += [vm]
         self._vagrant(args)
 
     def up(self, vm=None):
@@ -135,7 +135,7 @@ class VagrantController(object):
         """
         args = ['up']
         if vm:
-            args += vm
+            args += [vm]
         self._vagrant(args)
 
     def destroy(self, vm=None):
@@ -184,9 +184,6 @@ class VagrantController(object):
 
         """
         args = ['status']
-        #if vm:
-            #args += vm
-
         output_lines = self._vagrant(args)[1]
 
         state = 1
@@ -243,7 +240,7 @@ class VagrantController(object):
 
             Tuple consisting of the return value and a list of output lines
         """
-        print command
+        print("Executing: %s %s" % (self.vagrant_executable, " ".join(command)))
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
