@@ -95,8 +95,8 @@ class VagrantController(object):
             print "    http://downloads.vagrantup.com/"
             sys.exit(1)
 
-        with open(os.path.join(root, 'Vagrantfile'), 'wb') as f:
-            f.write("Dir.glob('*.vagrant.rb') {|file| load file}")
+        #with open(os.path.join(root, 'Vagrantfile'), 'wb') as f:
+            #f.write("Dir.glob('*.vagrant.rb') {|file| load file}")
 
     def create_box(self, box):
         """
@@ -115,25 +115,71 @@ class VagrantController(object):
         f.close()
 
     def init(self, vm=None):
+        """
+        Calls the "vagrant init" command.
+        """
         args = ['init']
         if vm:
             args += vm
         self._vagrant(args)
 
     def up(self, vm=None):
+        """
+        Calls the vagrant up command
+        """
         args = ['up']
         if vm:
             args += vm
         self._vagrant(args)
 
     def destroy(self, vm=None):
+        """
+        Calls the vagrant destroy command
+        """
         args = ['destroy']
         if vm:
-            args += vm
+            args += [vm]
+
+        # use the --force, vagrant! (disables the y/N question vagrant asks)
+        args += ['--force']
+
         self._vagrant(args)
 
+    def run_command(self, command, vm=None):
+        """
+        Runs a command on a vagrant managed vm.
+
+        Args:
+
+            command: command to be executed
+
+            vm: name of the vm
+
+        Returns:
+
+            list: list of output lines
+        """
+        args = ['ssh']
+        if vm:
+            args += [vm]
+        args += ['-c', command]
+
+        retval, output_lines = self._vagrant(args)
+
+        return output_lines
+
     def status(self, vm=None):
+        """
+        Get vm statuses
+
+        Returns:
+            status: vm names and their current status. if vm is passed,
+                return just the status of the vm.
+
+        """
         args = ['status']
+        #if vm:
+            #args += vm
 
         output_lines = self._vagrant(args)[1]
 
@@ -180,6 +226,18 @@ class VagrantController(object):
             return statuses[vm]
 
     def _vagrant(self, command):
+        """
+        calls the vagrant executable
+
+        Args:
+
+            command: list or string containing the parameters for vagrant
+
+        Returns:
+
+            Tuple consisting of the return value and a list of output lines
+        """
+        print command
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

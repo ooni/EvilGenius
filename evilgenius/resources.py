@@ -16,12 +16,14 @@ except ImportError:
 
 
 class CensorshipProvider(object):
-    def __init__(self, descriptor_path):
+    def __init__(self, descriptor_path, controller):
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
 
         self.id = os.path.basename(os.path.dirname(descriptor_path))\
             .replace("-", "")
+
+        self.controller = controller
 
         # prepare instal scripts in order
         if type(self.config['before_install']) is list:
@@ -57,25 +59,24 @@ class CensorshipProvider(object):
         """
         pass
 
-    def status(self, controller):
+    def status(self):
         """
-        Args:
-
-            controller
-
-                the :class:`evilgenius.vagrant.VagrantController` that should
-                should be queried.
-
         Returns:
 
             string.
 
             'running' -- the provider is running.
 
-            'stopped' -- the provider exists, but is not running.
+            'poweroff' -- the provider exists, but is not running.
 
-            'inexistent' -- the provider has not been created.
+            'not created' -- the provider has not been created.
+
+            'aborted' -- the provider has been terminated abruptly.
+
+            'saved' -- the provider has been suspended.
         """
+
+        return self.controller.status(vm=self.id)
 
         pass
 
