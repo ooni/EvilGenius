@@ -83,14 +83,41 @@ class CensorshipProvider(object):
 
 
 class NetworkMeasurementInstrument(object):
-    def __init__(self, descriptor_path):
-        pass
+    def __init__(self, descriptor_path, controller):
+        with open(descriptor_path) as f:
+            self.config = yaml.load(f)
+
+        self.id = os.path.basename(os.path.dirname(descriptor_path))\
+            .replace("-", "")
+
+        self.controller = controller
+
+        # prepare instal scripts in order
+        if type(self.config['before_install']) is list:
+            install_scripts = self.config['before_install']
+        else:
+            install_scripts = [self.config['before_install']]
+
+        if type(self.config['install']) is list:
+            install_scripts.extend(self.config['install'])
+        else:
+            install_scripts.append(self.config['install'])
+
+        if type(self.config['after_install']) is list:
+            install_scripts.extend(self.config['after_install'])
+        else:
+            install_scripts.append(self.config['after_install'])
+
+        self.box = VagrantBox(
+            name=self.id,
+            box=self.config['box'],
+            install_scripts=install_scripts)
 
     def run(self):
         """
         Run the network measurement instrument.
         """
-        pass
+        return self.controller.run_command(self.config['run'], vm=self.id)
 
 
 class EvilGeniusResources(object):
