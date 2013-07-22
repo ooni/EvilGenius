@@ -9,14 +9,15 @@ class NetworkInterface(object):
     """
     Represents a virtual Network Interface
     """
-    def __init__(self, address):
+    def __init__(self, address=None):
         """
         Creates a virtual network Interface
 
         Args:
             address (string): IPv4 address with netmask, like "10.11.12.13/24"
         """
-        self.address = address  # TODO check validity
+        if address:
+            self.address = address  # TODO check validity
 
 class VBoxInternalNetworkingInterface(NetworkInterface):
     """
@@ -31,6 +32,32 @@ class VBoxInternalNetworkingInterface(NetworkInterface):
             network_name (string): Name of the internal network to be used.
         """
         NetworkInterface.__init__(self, address)
+        self.network_name = network_name
+
+
+    @property
+    def config_line(self):
+        """
+        Returns:
+            string: Configuration line for adding this Interface to the boxes
+                definition.
+        """
+        pass
+
+
+class VBoxNatInterface(NetworkInterface):
+    """
+    Represents a internal Networking Interface specific to VirtualBox
+    """
+    def __init__(self):
+        """
+        Create an internal Networking Interface. Specific to VirtualBox.
+
+        Args:
+            address (string): IPv4 address with netmask, like "10.11.12.13/24"
+            network_name (string): Name of the internal network to be used.
+        """
+        NetworkInterface.__init__(self)
         self.network_name = network_name
 
 
