@@ -35,14 +35,24 @@ class VBoxInternalNetworkingInterface(NetworkInterface):
         self.network_name = network_name
 
 
-    @property
-    def config_line(self):
+    def config_lines(self, interface_number, vm_name):
         """
+        Args:
+            interface_number (int): Number of the virtual networking interface
+            vm_name (str): name of the vm.
+
         Returns:
-            string: Configuration line for adding this Interface to the boxes
+            list(str): Configuration lines for adding this Interface to the boxes
                 definition.
         """
-        pass
+        code = """
+        {vm_name}.vm.provider :virtualbox do |vb|
+            vb.customize ["modifyvm", :id, "--nic{interface_number}", "intnet"]
+            vb.customize ["modifyvm", :id, "--intnet{interface_number}", "{network_name}"]
+        end""".format(interface_number=interface_number, vm_name=vm_name,
+                      network_name=self.network_name)
+
+        return code
 
 
 class VBoxNatInterface(NetworkInterface):
@@ -61,14 +71,16 @@ class VBoxNatInterface(NetworkInterface):
         self.network_name = network_name
 
 
-    @property
-    def config_line(self):
+    def config_line(self, interface_number, vm_name):
         """
+        Args:
+            interface_number (int): Number of the virtual networking interface
+            vm_name (str): name of the vm.
+
         Returns:
             string: Configuration line for adding this Interface to the boxes
                 definition.
         """
-        pass
 
 class NetworkTopology(object):
     """
@@ -120,6 +132,7 @@ class VagrantFile(object):
 
 class VagrantBox(object):
     def __init__(self, name, box="precise32", install_scripts=[]):
+        self.network_interfaces = []
         self.name = name
         self.box = box
         if not type(install_scripts) is list:
@@ -130,21 +143,29 @@ class VagrantBox(object):
     def definition(self):
         provision_lines = ""
 
+        # Prepare provisioning lines
         for script in self.install_scripts:
             provision_lines += """
             {name}.vm.provision :shell, :inline => "{script}"
             """.format(script=script, name=self.name)
 
+        # Prepare network interfaces
+        network_configuration_lines = ""
+        interface_number = 2
+        for iface in self.network_interfaces:
+            network_configuration_lines += iface.config_lines(interface_number, self.name)
+            interface_number += 1
+
+
         code = """
         config.vm.define :{name} do |{name}|
             {name}.vm.box = "{box}"
-            {name}.vm.provider :virtualbox do |vb|
-              vb.customize ["modifyvm", :id, "--nic2", "intnet"]
-              vb.customize ["modifyvm", :id, "--intnet2", "probe"]
-            end
             {provision_lines}
+            {network_configuration_lines}
         end
-        """.format(box=self.box, name=self.name, provision_lines=provision_lines)
+        """.format(box=self.box, name=self.name,
+                   provision_lines=provision_lines,
+                   network_configuration_lines=network_configuration_lines)
         return code
 
 
