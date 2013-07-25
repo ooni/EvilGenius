@@ -42,7 +42,7 @@ class TestAsynchronusFileReader(TestCase):
         p = subprocess.Popen(['echo "Hello, world!"'], shell=True, stdout=subprocess.PIPE, cwd='/tmp/')
         stdout_queue = Queue.Queue()
         def print_line(line):
-            print line
+            pass
 
         stdout_reader = AsynchronousFileReader(fd=p.stdout, queue=stdout_queue, action=print_line)
         stdout_reader.start()
