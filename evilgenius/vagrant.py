@@ -326,7 +326,7 @@ class VagrantController(object):
 
             Tuple consisting of the return value and a list of output lines
         """
-        print("Executing: %s %s" % (self.vagrant_executable, " ".join(command)))
+        # print("Executing: %s %s" % (self.vagrant_executable, " ".join(command)))
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
