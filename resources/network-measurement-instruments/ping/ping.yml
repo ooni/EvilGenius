@@ -5,10 +5,10 @@ box: precise32
 # This shall be run once when first setting up the network measurement virtual machine
 install: dns-censorship.sh
 
-before_install:
-  - apt-get install curl
+before_install: 
+        - echo "Hello, World!"
 after_install:
-  - apt-get install curl
+        - echp "Hello, World!"
 
 # This is the command that executes the network measurment software
 run: ping -c 10 goatse.cx
