@@ -2,8 +2,12 @@ import re
 import sys
 import os
 import subprocess
+from Queue import Queue
 
 from distutils.spawn import find_executable
+
+from evilgenius.util import AsynchronousFileReader
+
 
 class NetworkInterface(object):
     """
@@ -330,6 +334,18 @@ class VagrantController(object):
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output_lines = p.stdout.readlines()
-        retval = p.wait()
-        return (retval, output_lines)
+
+        def log_output(line):
+            pass
+
+        stdout_queue = Queue()
+        stdout_reader = AsynchronousFileReader(fd=p.stdout, queue=stdout_queue, action=log_output)
+
+        stdout_reader.start()
+        output_lines = []
+        while not stdout_reader.eof():
+            while not stdout_queue.empty():
+                output_lines += [stdout_queue.get()]
+
+        stdout_reader.join()
+        return (p.returncode, output_lines)
