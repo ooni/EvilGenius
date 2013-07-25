@@ -1,12 +1,13 @@
 from unittest import TestCase
+import subprocess
+import Queue
+import time
+import shlex
+
+from evilgenius.util import AsynchronousFileReader
 
 class TestAsynchronusFileReader(TestCase):
     def test_file_reader_with_normal_output(self):
-        import subprocess
-        import Queue
-        import time
-        from evilgenius.util import AsynchronousFileReader
-
         p = subprocess.Popen(['ls', '-lah'], shell=True, stdout=subprocess.PIPE, cwd='/tmp/')
         stdout_queue = Queue.Queue()
         def print_line(line):
@@ -18,12 +19,7 @@ class TestAsynchronusFileReader(TestCase):
         stdout_reader.join()
 
     def test_file_reader_with_timed_output(self):
-        import subprocess
-        import Queue
-        import time
-        from evilgenius.util import AsynchronousFileReader
-
-        p = subprocess.Popen(['ping -c 4 goatse.cx'], shell=True, stdout=subprocess.PIPE, cwd='/tmp/')
+        p = subprocess.Popen(shlex.split('/sbin/ping -c 1 -t 1 goatse.cx'), stdout=subprocess.PIPE, cwd='/tmp/')
         stdout_queue = Queue.Queue()
         def print_line(line):
             pass
@@ -34,12 +30,7 @@ class TestAsynchronusFileReader(TestCase):
         stdout_reader.join()
 
     def test_output_result(self):
-        import subprocess
-        import Queue
-        import time
-        from evilgenius.util import AsynchronousFileReader
-
-        p = subprocess.Popen(['echo "Hello, world!"'], shell=True, stdout=subprocess.PIPE, cwd='/tmp/')
+        p = subprocess.Popen(['/bin/echo', '"Hello, world!"'], stdout=subprocess.PIPE, cwd='/tmp/')
         stdout_queue = Queue.Queue()
         def print_line(line):
             pass
@@ -54,4 +45,3 @@ class TestAsynchronusFileReader(TestCase):
             output_lines += [stdout_queue.get()]
 
         self.assertTrue("Hello, world" in output_lines[0])
-
