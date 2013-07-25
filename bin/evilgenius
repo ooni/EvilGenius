@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.getcwd()))
 
 from evilgenius.resources import EvilGeniusResources
 
-def parse_arguments():
+if __name__ == "__main__":
     try:
         import argparse
     except ImportError:
@@ -31,12 +31,7 @@ def parse_arguments():
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
 
-    return parser.parse_args()
-
-if __name__ == "__main__":
-
-    args = parse_arguments()
-    #evil_genius_resources.init_censorship_provider('dns-censorship')
+    args =  parser.parse_args()
 
     if args.list:
         evil_genius_resources = EvilGeniusResources()
@@ -64,3 +59,5 @@ if __name__ == "__main__":
 
         # present results to user
         pass
+    else:
+        parser.print_help()
