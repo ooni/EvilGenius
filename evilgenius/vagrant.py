@@ -91,6 +91,10 @@ class NetworkTopology(object):
     This class shall be used to store the topology of the network.
     """
 
+    def __init__(self):
+        self.censorship_providers = []
+        self.network_measurement_instruments = []
+
     @property
     def router(self):
         """
@@ -99,17 +103,46 @@ class NetworkTopology(object):
 
             the router to be used for this given network topology.
         """
-        pass
+        #TODO add actual router
+        return VagrantBox(box='precise32', name='router', install_scripts=[])
+
+    @property
+    def vagrantfile(self):
+        """
+        Returns:
+            :class:`evilgenius.vagrant.VagrantFile` with all the boxes, nicely
+                patched together and ready to pull up
+        """
+
+        # "patch" everything together
+        # TODO "patch" network_measurement instruments to the router
+
+        _ip_ctr = 1
+        _patch_ctr = 1
+
+        router = self.router
+
+        for n in self.network_measurement_instruments:
+            n.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
+            _ip_ctr += 1
+            router.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
+            _patch_ctr += 1
+            _ip_ctr += 1
+
+
+        # TODO "chain" censorship_providers
+
+        boxes = [n.box for n in self.network_measurement_instruments] + [c.box for c in self.censorship_providers] + [router]
+        return VagrantFile(boxes=boxes)
+
 
 class VagrantFile(object):
-    def __init__(self, boxes, network):
+    def __init__(self, boxes):
         """
         Args:
 
-            boxes (list): a list of :class:`evilgenius.vagrant.VagrantBox` instances.
-
-            network (:class:`evilgenius.vagrant.NetworkTopology`): the network
-                topology for the given Vagrantfile.
+            boxes (list): a list of :class:`evilgenius.vagrant.VagrantBox`
+                instances.
         """
         if type(boxes) is list:
             self.boxes = boxes
@@ -124,8 +157,6 @@ class VagrantFile(object):
 
             the content of the Vagrantfile.
         """
-        # TODO implement support for NetworkTopology
-
         # pref
         result = 'Vagrant.configure("2") do |config|'
         for box in self.boxes:
@@ -133,6 +164,7 @@ class VagrantFile(object):
         result += 'end'
 
         return result
+
 
 class VagrantBox(object):
     def __init__(self, name, box="precise32", install_scripts=[]):

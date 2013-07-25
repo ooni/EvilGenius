@@ -3,11 +3,13 @@
 import os
 import sys
 
+
 # Hack to set the proper sys.path. Overcomes the export PYTHONPATH pain.
 sys.path[:] = map(os.path.abspath, sys.path)
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 
-from evilgenius.resources import EvilGeniusResources
+from evilgenius.resources import CensorshipProvider, NetworkMeasurementInstrument, EvilGeniusResources
+from evilgenius.vagrant import VagrantController, NetworkTopology
 
 if __name__ == "__main__":
     try:
@@ -40,12 +42,41 @@ if __name__ == "__main__":
     elif args.censorship_providers and args.network_measurement:
         ## prepare network
 
-        # check if providers and instruments are there, if not cancel and
-        # notify user
+        # initalize a temporary directory
+        import tempfile
+        tmp = tempfile.mkdtemp()
 
-        # create objects
+        # initialize VagrantController
+        controller = VagrantController(root=tmp)
+
+        # create instruments and providers, if one of them is not available,
+        # notify user
+        censorship_providers = []
+        for c in args.censorship_providers:
+            try:
+                provider_path = "resources/censorship-providers/{name}/{name}.yml".format(name=c)
+                c = CensorshipProvider(controller=controller, descriptor_path=provider_path)
+                censorship_providers.append(c)
+            except IOError, e:
+                print("[ERROR] Provider {filename} not found".format(filename=e.filename))
+
+
+        network_measurement_instruments = []
+        for n in args.network_measurement:
+            try:
+                provider_path = "resources/network-measurement-instruments/{name}/{name}.yml".format(name=n)
+                n = NetworkMeasurementInstrument(controller=controller, descriptor_path=provider_path)
+                network_measurement_instruments.append(n)
+            except IOError, e:
+                print("[ERROR] Instrument {filename} not found".format(filename=e.filename))
+
 
         # mash them together in a network Topology
+        network = NetworkTopology()
+        network.censorship_providers = censorship_providers
+        network.network_measurement_instruments = network_measurement_instruments
+
+        print network.vagrantfile.content
 
         # write out the Vagrantfile
 
