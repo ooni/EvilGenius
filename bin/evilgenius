@@ -36,9 +36,31 @@ def parse_arguments():
 if __name__ == "__main__":
 
     args = parse_arguments()
-    evil_genius_resources = EvilGeniusResources()
-    evil_genius_resources.init_censorship_provider('dns-censorship')
+    #evil_genius_resources.init_censorship_provider('dns-censorship')
 
     if args.list:
+        evil_genius_resources = EvilGeniusResources()
         evil_genius_resources.list_censorship_providers()
         evil_genius_resources.list_network_measurement_instruments()
+    elif args.censorship_providers and args.network_measurement:
+        ## prepare network
+
+        # check if providers and instruments are there, if not cancel and
+        # notify user
+
+        # create objects
+
+        # mash them together in a network Topology
+
+        # write out the Vagrantfile
+
+        # Pull that sh*t up
+
+        # iterate over instruments
+
+        # save output
+
+        # tear that sh*t down
+
+        # present results to user
+        pass
