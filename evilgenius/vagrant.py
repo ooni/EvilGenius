@@ -339,7 +339,7 @@ class VagrantController(object):
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         def log_output(line):
-            pass
+            print line.strip()
 
         stdout_queue = Queue()
         stdout_reader = AsynchronousFileReader(fd=p.stdout, queue=stdout_queue, action=log_output)
