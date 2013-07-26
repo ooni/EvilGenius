@@ -20,8 +20,7 @@ class CensorshipProvider(object):
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
 
-        self.id = os.path.basename(os.path.dirname(descriptor_path))\
-            .replace("-", "")
+        self.id = os.path.basename(descriptor_path).replace(".yml", "")
 
         self.controller = controller
 
@@ -87,8 +86,7 @@ class NetworkMeasurementInstrument(object):
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
 
-        self.id = os.path.basename(os.path.dirname(descriptor_path))\
-            .replace("-", "")
+        self.id = os.path.basename(descriptor_path).replace(".yml", "")
 
         self.controller = controller
 
