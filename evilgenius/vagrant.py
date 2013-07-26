@@ -168,8 +168,11 @@ class VagrantFile(object):
 
 class VagrantBox(object):
     def __init__(self, name, box="precise32", install_scripts=[]):
+        # We strip the "-" char, because Vagrant does not like it since it
+        # interprets it as an operator.
+        self.name = name.replace("-", "")
+
         self.network_interfaces = []
-        self.name = name
         self.box = box
         if not type(install_scripts) is list:
             install_scripts = [install_scripts]
