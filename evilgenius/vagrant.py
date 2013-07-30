@@ -2,6 +2,7 @@ import re
 import sys
 import os
 import subprocess
+import logging
 from Queue import Queue
 
 from distutils.spawn import find_executable
@@ -365,13 +366,13 @@ class VagrantController(object):
 
             Tuple consisting of the return value and a list of output lines
         """
-        # print("Executing: %s %s" % (self.vagrant_executable, " ".join(command)))
+        logging.info("Executing: %s %s" % (self.vagrant_executable, " ".join(command)))
         args = [self.vagrant_executable] + command
         p = subprocess.Popen(args, shell=False, cwd=self.root,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         def log_output(line):
-            print line.strip()
+            logging.debug("[v] "+line.strip())
 
         stdout_queue = Queue()
         stdout_reader = AsynchronousFileReader(fd=p.stdout, queue=stdout_queue, action=log_output)
