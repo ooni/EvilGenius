@@ -3,13 +3,14 @@
 import os
 import sys
 
-
 # Hack to set the proper sys.path. Overcomes the export PYTHONPATH pain.
 sys.path[:] = map(os.path.abspath, sys.path)
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 
 from evilgenius.resources import CensorshipProvider, NetworkMeasurementInstrument, EvilGeniusResources
 from evilgenius.vagrant import VagrantController, NetworkTopology
+
+import logging
 
 if __name__ == "__main__":
     try:
@@ -35,6 +36,16 @@ if __name__ == "__main__":
 
     args =  parser.parse_args()
 
+    # initialize logging
+    if args.verbose:
+        loglevel = logging.INFO
+    else:
+        loglevel = logging.ERROR
+
+    logging.basicConfig(format="[%(levelname)s]: %(message)s",
+                        level=loglevel)
+    logging.info('ohai, this is evilgenius.')
+
     if args.list:
         evil_genius_resources = EvilGeniusResources()
         evil_genius_resources.list_censorship_providers()
@@ -58,8 +69,8 @@ if __name__ == "__main__":
                 c = CensorshipProvider(controller=controller, descriptor_path=provider_path)
                 censorship_providers.append(c)
             except IOError, e:
-                print("[ERROR] Provider {filename} not found".format(filename=e.filename))
-
+                logging.error("Provider {filename} not found".format(filename=e.filename))
+                sys.exit(1)
 
         network_measurement_instruments = []
         for n in args.network_measurement:
@@ -68,8 +79,8 @@ if __name__ == "__main__":
                 n = NetworkMeasurementInstrument(controller=controller, descriptor_path=provider_path)
                 network_measurement_instruments.append(n)
             except IOError, e:
-                print("[ERROR] Instrument {filename} not found".format(filename=e.filename))
-
+                logging.error("Instrument {filename} not found".format(filename=e.filename))
+                sys.exit(1)
 
         # mash them together in a network Topology
         network = NetworkTopology()
