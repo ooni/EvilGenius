@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # initialize logging
     if args.verbose:
-        loglevel = logging.INFO
+        loglevel = logging.DEBUG
     else:
         loglevel = logging.ERROR
 
