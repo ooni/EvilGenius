@@ -141,6 +141,17 @@ class NetworkTopology(object):
         self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', network_name='eg_censorship_provider_1')]
 
         boxes = [n.box for n in self.network_measurement_instruments] + [c.box for c in self.censorship_providers] + [router]
+
+        # set box ip addresses
+        for box in boxes:
+            dev_ctr = 1
+            for iface in box.network_interfaces:
+                box.install_scripts.append("ip addr add {address} dev eth{dev_ctr}"
+                                           .format(dev_ctr=dev_ctr,
+                                                   address=iface.address))
+                box.install_scripts.append("ip link set eth{dev_ctr} up".format(dev_ctr=dev_ctr))
+                dev_ctr += 1
+
         return VagrantFile(boxes=boxes)
 
 
