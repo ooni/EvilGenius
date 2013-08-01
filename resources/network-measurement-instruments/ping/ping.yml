@@ -3,7 +3,7 @@ description: performs DNS censorship thanks to squid
 box: precise32
 
 # This shall be run once when first setting up the network measurement virtual machine
-install: echo "Hello, World!"
+install: sh /scripts/hello.sh
 
 before_install: 
         - echo "Hello, World!"
