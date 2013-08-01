@@ -3,14 +3,14 @@ description: performs DNS censorship thanks to squid
 box: precise32
 
 # This shall be run once when first setting up the censorship virtual machine
-install: dns-censorship.sh
+install: echo "Hello, World!"
 before_install:
   - echo "Hello, World!"
 after_install:
   - echo "Hello, World!"
 
 # This shall be run every time the censorship vm starts
-start: dns-censorship-start.sh
+start: echo "Hello, World!"
 
 # This shall be run every time the censorship vm stops
-stop: dns-censorship-stop.sh
+stop: echo "Hello, World!"

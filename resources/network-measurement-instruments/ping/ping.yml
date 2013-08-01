@@ -3,12 +3,12 @@ description: performs DNS censorship thanks to squid
 box: precise32
 
 # This shall be run once when first setting up the network measurement virtual machine
-install: dns-censorship.sh
+install: echo "Hello, World!"
 
 before_install: 
         - echo "Hello, World!"
 after_install:
-        - echp "Hello, World!"
+        - echo "Hello, World!"
 
 # This is the command that executes the network measurment software
 run: ping -c 10 goatse.cx
