@@ -31,6 +31,7 @@ if __name__ == "__main__":
                         action='append')
     parser.add_argument("--list", "-l", action="store_true",
                         help="List all available network measurement instruments and censorship providers")
+    parser.add_argument("--dry-run", "-d", action="store_true", help="do not perform any action, just spit out the vagrantfile")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     parser.add_argument("-w", "--working-directory", help="Set working directory for vagrant. A temporary \
@@ -95,6 +96,12 @@ if __name__ == "__main__":
         network = NetworkTopology()
         network.censorship_providers = censorship_providers
         network.network_measurement_instruments = network_measurement_instruments
+
+        # if it's just a dry run, just print the contents of the vagrantfile
+        # and exit
+        if args.dry_run:
+            print network.vagrantfile.content
+            sys.exit(0)
 
         # write out the Vagrantfile
         with open(os.path.join(working_directory, 'Vagrantfile'), 'w') as vagrantfile:
