@@ -15,7 +15,7 @@ except ImportError:
     sys.exit(1)
 
 
-class CensorshipProvider(object):
+class ManagedResource(object):
     def __init__(self, descriptor_path, controller):
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
@@ -45,6 +45,11 @@ class CensorshipProvider(object):
             box=self.config['box'],
             install_scripts=install_scripts)
 
+
+class CensorshipProvider(ManagedResource):
+    def __init__(self, descriptor_path, controller):
+        ManagedResource.__init__(self, descriptor_path=descriptor_path,
+                                 controller=controller)
     def start(self):
         """
         Starts the censorship provider.
@@ -81,37 +86,11 @@ class CensorshipProvider(object):
         pass
 
 
-class NetworkMeasurementInstrument(object):
-    def __init__(self, descriptor_path, controller):
-        with open(descriptor_path) as f:
-            self.config = yaml.load(f)
-
-        self.id = os.path.basename(descriptor_path).replace(".yml", "")
-
-        self.controller = controller
-
-        # prepare instal scripts in order
-        if type(self.config['before_install']) is list:
-            install_scripts = self.config['before_install']
-        else:
-            install_scripts = [self.config['before_install']]
-
-        if type(self.config['install']) is list:
-            install_scripts.extend(self.config['install'])
-        else:
-            install_scripts.append(self.config['install'])
-
-        if type(self.config['after_install']) is list:
-            install_scripts.extend(self.config['after_install'])
-        else:
-            install_scripts.append(self.config['after_install'])
-
-        self.box = VagrantBox(
-            name=self.id,
-            box=self.config['box'],
-            install_scripts=install_scripts)
-
-    def run(self):
+class NetworkMeasurementInstrument(ManagedResource):
+     def __init__(self, descriptor_path, controller):
+        ManagedResource.__init__(self, descriptor_path=descriptor_path,
+                                 controller=controller)
+     def run(self):
         """
         Run the network measurement instrument.
         """
