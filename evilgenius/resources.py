@@ -43,7 +43,8 @@ class ManagedResource(object):
         self.box = VagrantBox(
             name=self.id,
             box=self.config['box'],
-            install_scripts=install_scripts)
+            install_scripts=install_scripts,
+            script_folder=os.path.abspath(os.path.dirname(descriptor_path)))
 
 
 class CensorshipProvider(ManagedResource):

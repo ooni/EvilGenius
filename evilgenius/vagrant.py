@@ -175,7 +175,7 @@ class VagrantFile(object):
 
 
 class VagrantBox(object):
-    def __init__(self, name, box="precise32", install_scripts=[]):
+    def __init__(self, name, box="precise32", install_scripts=[], script_folder=None):
         # We strip the "-" char, because Vagrant does not like it since it
         # interprets it as an operator.
         self.name = name.replace("-", "")
@@ -185,6 +185,7 @@ class VagrantBox(object):
         if not type(install_scripts) is list:
             install_scripts = [install_scripts]
         self.install_scripts = install_scripts
+        self.script_folder = script_folder
 
     @property
     def definition(self):
@@ -203,16 +204,23 @@ class VagrantBox(object):
             network_configuration_lines += iface.config_lines(interface_number, self.name)
             interface_number += 1
 
+        if self.script_folder:
+            script_folder_line = "{name}.vm.synced_folder \"{script_folder}\", \"/scripts\"".format(script_folder=self.script_folder, name=self.name)
+        else:
+            script_folder_line = ""
+
 
         code = """
         config.vm.define :{name} do |{name}|
             {name}.vm.box = "{box}"
+            {script_folder_line}
             {provision_lines}
             {network_configuration_lines}
         end
         """.format(box=self.box, name=self.name,
                    provision_lines=provision_lines,
-                   network_configuration_lines=network_configuration_lines)
+                   network_configuration_lines=network_configuration_lines,
+                   script_folder_line=script_folder_line)
         return code
 
 
