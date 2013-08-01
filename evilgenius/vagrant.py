@@ -194,7 +194,7 @@ class VagrantBox(object):
         for script in self.install_scripts:
             provision_lines += """
             {name}.vm.provision :shell, :inline => "{script}"
-            """.format(script=script, name=self.name)
+            """.format(script=script.replace('"', '\\\"'), name=self.name)
 
         # Prepare network interfaces
         network_configuration_lines = ""
