@@ -33,6 +33,8 @@ if __name__ == "__main__":
                         help="List all available network measurement instruments and censorship providers")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
+    parser.add_argument("-w", "--working-directory", help="Set working directory for vagrant. A temporary \
+            directory is created if not specified")
 
     args =  parser.parse_args()
 
@@ -42,7 +44,7 @@ if __name__ == "__main__":
     else:
         loglevel = logging.ERROR
 
-    logging.basicConfig(format="[%(levelname)s]: %(message)s",
+    logging.basicConfig(format="[%(levelname)s] %(message)s",
                         level=loglevel)
     logging.info('ohai, this is evilgenius.')
 
@@ -53,12 +55,19 @@ if __name__ == "__main__":
     elif args.censorship_providers and args.network_measurement:
         ## prepare network
 
-        # initalize a temporary directory
-        import tempfile
-        tmp = tempfile.mkdtemp()
+        # initalize a temporary directory if no working directory is specified
+        if not args.working_directory:
+            import tempfile
+            working_directory = tempfile.mkdtemp()
+        else:
+            if not os.path.isdir(args.working_directory):
+                logging.error("The working directory does not exist. Exitting.")
+                sys.exit(1)
+            working_directory = args.working_directory
+
 
         # initialize VagrantController
-        controller = VagrantController(root=tmp)
+        controller = VagrantController(root=working_directory)
 
         # create instruments and providers, if one of them is not available,
         # notify user
@@ -87,17 +96,19 @@ if __name__ == "__main__":
         network.censorship_providers = censorship_providers
         network.network_measurement_instruments = network_measurement_instruments
 
-        print network.vagrantfile.content
-
         # write out the Vagrantfile
+        with open(os.path.join(working_directory, 'Vagrantfile'), 'w') as vagrantfile:
+            vagrantfile.write(network.vagrantfile.content)
 
         # Pull that sh*t up
+        controller.up()
 
         # iterate over instruments
 
         # save output
 
         # tear that sh*t down
+        controller.destroy()
 
         # present results to user
         pass
