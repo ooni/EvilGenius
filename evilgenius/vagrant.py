@@ -115,8 +115,7 @@ class NetworkTopology(object):
                 patched together and ready to pull up
         """
 
-        # "patch" everything together
-        # TODO "patch" network_measurement instruments to the router
+        # "patch" network_measurement instruments to the router
 
         _ip_ctr = 1
         _patch_ctr = 1
@@ -127,11 +126,17 @@ class NetworkTopology(object):
             n.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
             _ip_ctr += 1
             router.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
+            if _ip_ctr >= 254:
+                logging.warn("Networks with more than 126 measurement instruments are not supported :(")
             _patch_ctr += 1
             _ip_ctr += 1
 
+        # "patch" censorship providers to the router
 
-        # TODO "chain" censorship_providers
+        if len(self.censorship_providers) > 1:
+            logger.error("Multiple censorship providers are not supported just yet")
+            sys.exit(0)
+
 
         boxes = [n.box for n in self.network_measurement_instruments] + [c.box for c in self.censorship_providers] + [router]
         return VagrantFile(boxes=boxes)
