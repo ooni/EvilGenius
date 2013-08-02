@@ -8,7 +8,7 @@ sys.path[:] = map(os.path.abspath, sys.path)
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 
 from evilgenius.resources import CensorshipProvider, NetworkMeasurementInstrument, EvilGeniusResources
-from evilgenius.vagrant import VagrantController, NetworkTopology
+from evilgenius.vagrant import VagrantController, NetworkTopology, VagrantBox
 
 import logging
 
@@ -93,19 +93,19 @@ if __name__ == "__main__":
                 sys.exit(1)
 
         # mash them together in a network Topology
-        network = NetworkTopology()
-        network.censorship_providers = censorship_providers
-        network.network_measurement_instruments = network_measurement_instruments
+        network = NetworkTopology(router=VagrantBox(name='router'),
+                                  network_measurement_instruments=network_measurement_instruments,
+                                  censorship_providers=censorship_providers)
 
         # if it's just a dry run, just print the contents of the vagrantfile
         # and exit
         if args.dry_run:
-            print network.vagrantfile.content
+            print network.vagrantfile
             sys.exit(0)
 
         # write out the Vagrantfile
         with open(os.path.join(working_directory, 'Vagrantfile'), 'w') as vagrantfile:
-            vagrantfile.write(network.vagrantfile.content)
+            vagrantfile.write(network.vagrantfile)
 
         # Pull that sh*t up
         controller.up()
