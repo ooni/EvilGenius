@@ -130,12 +130,6 @@ class EvilGeniusResources(object):
             with open(nm_descriptor) as f:
                 self.network_measurement_instruments[nm_id] = yaml.load(f)
 
-    def init_censorship_provider(self, name):
-        vagrant_box = VagrantBox(name,
-                                 self.censorship_providers[name]['box'],
-                                 self.censorship_providers[name]['install'])
-        print vagrant_box.definition
-
     def list_censorship_providers(self):
         print "== [ Censorship Providers ] =="
         print ""
