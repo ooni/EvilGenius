@@ -16,11 +16,11 @@ if __name__ == "__main__":
     try:
         import argparse
     except ImportError:
-        print "[!] Error! Evil Genius requires argparse."
-        print ""
-        print "argparse is found in python >= 2.7."
-        print "If you do not wish to update to a modern version of python " \
-              "you must manually install the argparse module."
+        print("[!] Error! Evil Genius requires argparse.")
+        print("")
+        print("argparse is found in python >= 2.7.")
+        print("If you do not wish to update to a modern version of python " \
+              "you must manually install the argparse module.")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--network-measurement", "-n",

@@ -9,9 +9,9 @@ from evilgenius.vagrant import VagrantBox
 try:
     import yaml
 except ImportError:
-    print "[!] Evil Genius requires YAML"
-    print "    Please install it from here:"
-    print "    http://bitbucket.org/xi/pyyaml"
+    print("[!] Evil Genius requires YAML")
+    print("    Please install it from here:")
+    print("    http://bitbucket.org/xi/pyyaml")
     sys.exit(1)
 
 

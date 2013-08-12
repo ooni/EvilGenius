@@ -68,9 +68,9 @@ class VagrantController(object):
         self.root = root
         self.vagrant_executable = find_executable('vagrant')
         if not self.vagrant_executable:
-            print "[!] Vagrant does not appear to be installed."
-            print "    Please download and install a copy of it here:"
-            print "    http://downloads.vagrantup.com/"
+            print("[!] Vagrant does not appear to be installed.")
+            print("    Please download and install a copy of it here:")
+            print("    http://downloads.vagrantup.com/")
             sys.exit(1)
 
     def create_box(self, box):
