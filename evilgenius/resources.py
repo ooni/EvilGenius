@@ -91,11 +91,14 @@ class NetworkMeasurementInstrument(ManagedResource):
      def __init__(self, descriptor_path, controller):
         ManagedResource.__init__(self, descriptor_path=descriptor_path,
                                  controller=controller)
-     def run(self):
+     def run(self, logfile):
         """
         Run the network measurement instrument.
         """
-        return self.controller.run_command(self.config['run'], vm=self.id)
+        output_lines = self.controller.run_command(self.config['run'], vm=self.id)
+        with open(logfile, 'w') as f:
+            for line in output_lines:
+                f.write(line)
 
 
 class EvilGeniusResources(object):

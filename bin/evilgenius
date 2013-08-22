@@ -2,6 +2,7 @@
 
 import os
 import sys
+import datetime
 
 # Hack to set the proper sys.path. Overcomes the export PYTHONPATH pain.
 sys.path[:] = map(os.path.abspath, sys.path)
@@ -36,6 +37,9 @@ if __name__ == "__main__":
                         help="increase output verbosity")
     parser.add_argument("-w", "--working-directory", help="Set working directory for vagrant. A temporary \
             directory is created if not specified")
+    parser.add_argument("-L", "--log-directory", help="set log directory for network measurement instruments. \
+                        A temporary diretory is created inside the working directory is created if not specified.")
+
 
     args =  parser.parse_args()
 
@@ -111,8 +115,18 @@ if __name__ == "__main__":
         controller.up()
 
         # iterate over instruments
+        if not args.log_directory:
+            log_directory = os.path.join(working_directory, 'logs')
+        else:
+            log_directory = args.log_directory
 
-        # save output
+        if not os.path.exists(log_directory):
+            os.mkdir(log_directory)
+
+        current_timestamp = datetime.datetime.now().strftime('%s')
+
+        for instrument in network_measurement_instruments:
+            instrument.run(os.path.join(log_directory, "%s-%s.log" % (instrument.id, current_timestamp)))
 
         # tear that sh*t down
         controller.destroy()
