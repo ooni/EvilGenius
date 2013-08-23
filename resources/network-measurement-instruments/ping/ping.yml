@@ -1,5 +1,5 @@
-name: DNS Censorship
-description: performs DNS censorship thanks to squid
+name: Ping
+description: Perform a simple ICMP Ping to goatse.cx
 box: precise32
 
 # This shall be run once when first setting up the network measurement virtual machine
