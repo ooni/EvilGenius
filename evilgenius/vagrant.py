@@ -29,17 +29,24 @@ class VagrantBox(object):
         provision_lines = ""
 
         # Prepare provisioning lines
-        for script in self.install_scripts:
-            provision_lines += """
-            {name}.vm.provision :shell, :inline => "{script}"
-            """.format(script=script.replace('"', '\\\"'), name=self.name)
+
+        install_scripts = self.install_scripts
 
         # Prepare network interfaces
         network_configuration_lines = ""
         interface_number = 2
         for iface in self.network_interfaces:
             network_configuration_lines += iface.config_lines(interface_number, self.name)
+            install_scripts.append("ip a add %s dev eth%i" % (iface.address, interface_number - 1))
+            install_scripts.append("ip l set eth%i up" % (interface_number - 1,))
             interface_number += 1
+
+
+        for script in install_scripts:
+            provision_lines += """
+            {name}.vm.provision :shell, :inline => "{script}"
+            """.format(script=script.replace('"', '\\\"'), name=self.name)
+
 
         if self.script_folder:
             script_folder_line = "{name}.vm.synced_folder \"{script_folder}\", \"/scripts\"".format(script_folder=self.script_folder, name=self.name)
