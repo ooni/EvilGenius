@@ -1,9 +1,9 @@
-name: Ping
-description: Perform a simple ICMP Ping to goatse.cx
+name: traceroute
+description: perform a traceroute to goatse.cx
 box: precise32
 
 # This shall be run once when first setting up the network measurement virtual machine
-install: sh /scripts/hello.sh
+install: apt-get install -y traceroute
 
 before_install: 
         - echo "Hello, World!"
@@ -11,4 +11,4 @@ after_install:
         - echo "Hello, World!"
 
 # This is the command that executes the network measurment software
-run: ping -c 10 goatse.cx
+run: traceroute goatse.cx

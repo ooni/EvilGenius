@@ -9,13 +9,13 @@ from evilgenius.vagrant import VagrantBox
 try:
     import yaml
 except ImportError:
-    print "[!] Evil Genius requires YAML"
-    print "    Please install it from here:"
-    print "    http://bitbucket.org/xi/pyyaml"
+    print("[!] Evil Genius requires YAML")
+    print("    Please install it from here:")
+    print("    http://bitbucket.org/xi/pyyaml")
     sys.exit(1)
 
 
-class CensorshipProvider(object):
+class ManagedResource(object):
     def __init__(self, descriptor_path, controller):
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
@@ -43,8 +43,14 @@ class CensorshipProvider(object):
         self.box = VagrantBox(
             name=self.id,
             box=self.config['box'],
-            install_scripts=install_scripts)
+            install_scripts=install_scripts,
+            script_folder=os.path.abspath(os.path.dirname(descriptor_path)))
 
+
+class CensorshipProvider(ManagedResource):
+    def __init__(self, descriptor_path, controller):
+        ManagedResource.__init__(self, descriptor_path=descriptor_path,
+                                 controller=controller)
     def start(self):
         """
         Starts the censorship provider.
@@ -81,41 +87,18 @@ class CensorshipProvider(object):
         pass
 
 
-class NetworkMeasurementInstrument(object):
-    def __init__(self, descriptor_path, controller):
-        with open(descriptor_path) as f:
-            self.config = yaml.load(f)
-
-        self.id = os.path.basename(descriptor_path).replace(".yml", "")
-
-        self.controller = controller
-
-        # prepare instal scripts in order
-        if type(self.config['before_install']) is list:
-            install_scripts = self.config['before_install']
-        else:
-            install_scripts = [self.config['before_install']]
-
-        if type(self.config['install']) is list:
-            install_scripts.extend(self.config['install'])
-        else:
-            install_scripts.append(self.config['install'])
-
-        if type(self.config['after_install']) is list:
-            install_scripts.extend(self.config['after_install'])
-        else:
-            install_scripts.append(self.config['after_install'])
-
-        self.box = VagrantBox(
-            name=self.id,
-            box=self.config['box'],
-            install_scripts=install_scripts)
-
-    def run(self):
+class NetworkMeasurementInstrument(ManagedResource):
+     def __init__(self, descriptor_path, controller):
+        ManagedResource.__init__(self, descriptor_path=descriptor_path,
+                                 controller=controller)
+     def run(self, logfile):
         """
         Run the network measurement instrument.
         """
-        return self.controller.run_command(self.config['run'], vm=self.id)
+        output_lines = self.controller.run_command(self.config['run'], vm=self.id)
+        with open(logfile, 'w') as f:
+            for line in output_lines:
+                f.write(line)
 
 
 class EvilGeniusResources(object):
@@ -149,12 +132,6 @@ class EvilGeniusResources(object):
             nm_id = os.path.basename(os.path.dirname(nm_descriptor))
             with open(nm_descriptor) as f:
                 self.network_measurement_instruments[nm_id] = yaml.load(f)
-
-    def init_censorship_provider(self, name):
-        vagrant_box = VagrantBox(name,
-                                 self.censorship_providers[name]['box'],
-                                 self.censorship_providers[name]['install'])
-        print vagrant_box.definition
 
     def list_censorship_providers(self):
         print "== [ Censorship Providers ] =="
