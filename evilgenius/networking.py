@@ -113,6 +113,10 @@ class NetworkTopology(object):
             _patch_ctr += 1
             _ip_ctr += 1
 
+        # disable default routes on network measurement instruments
+        for n in self.network_measurement_instruments:
+            n.box.install_scripts.append('while ip route del default; do :; done')
+
         # "patch" censorship providers to the router
 
         if len(self.censorship_providers) > 1:
