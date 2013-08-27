@@ -101,6 +101,19 @@ class NetworkMeasurementInstrument(ManagedResource):
                 f.write(line)
 
 
+class Router(object):
+    def __init__(self, controller):
+        self.id = 'router'
+        self.controller = controller
+
+        setup_scripts = [
+            "echo 1 > /proc/sys/net/ipv4/ip_forward",
+        ]
+
+        self.box = VagrantBox(name='router', install_scripts=setup_scripts,
+                              box='precise32')
+
+
 class EvilGeniusResources(object):
     """
     I am responsible for keeping track of all Evil Genius resources.

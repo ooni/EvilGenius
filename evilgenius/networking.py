@@ -107,7 +107,7 @@ class NetworkTopology(object):
         for n in self.network_measurement_instruments:
             n.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i/24'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
             _ip_ctr += 1
-            router.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i/24'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
+            router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i/24'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
             if _ip_ctr >= 254:
                 logging.warn("Networks with more than 126 measurement instruments are not supported :(")
             _patch_ctr += 1
@@ -123,11 +123,11 @@ class NetworkTopology(object):
             logging.error("Multiple censorship providers are not supported just yet")
             sys.exit(0)
 
-        router.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', network_name='eg_censorship_provider_1')]
+        router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', network_name='eg_censorship_provider_1')]
         self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', network_name='eg_censorship_provider_1')]
 
         boxes = [n.box for n in self.network_measurement_instruments] +\
-            [c.box for c in self.censorship_providers] + [router]
+            [c.box for c in self.censorship_providers] + [router.box]
 
         result = 'Vagrant.configure("2") do |config|'
         for box in boxes:
