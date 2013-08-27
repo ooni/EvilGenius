@@ -7,7 +7,7 @@ class TestNetworkingInterfaces(TestCase):
         testbox = VagrantBox(box="precise32", install_scripts=["echo 'Hello, World!'"],
                             name='testbox')
 
-        iface = VBoxInternalNetworkingInterface(address="10.11.12.13", network_name="asdf")
+        iface = VBoxInternalNetworkingInterface(address="10.11.12.13", peer_address="10.11.12.14", network_name="asdf")
 
         testbox.network_interfaces += [iface]
 

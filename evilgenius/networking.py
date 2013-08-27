@@ -19,15 +19,17 @@ class VBoxInternalNetworkingInterface(NetworkInterface):
     """
     Represents a internal Networking Interface specific to VirtualBox
     """
-    def __init__(self, address, network_name):
+    def __init__(self, address, peer_address, network_name):
         """
         Create an internal Networking Interface. Specific to VirtualBox.
 
         Args:
             address (string): IPv4 address with netmask, like "10.11.12.13/24"
+            peer_address (string): IPv4 address with netmask, like "10.11.12.13/24"
             network_name (string): Name of the internal network to be used.
         """
         NetworkInterface.__init__(self, address)
+        self.peer_address = peer_address
         self.network_name = network_name
 
 
@@ -104,18 +106,28 @@ class NetworkTopology(object):
 
         router = self.router
 
-        for n in self.network_measurement_instruments:
-            n.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i/24'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
-            _ip_ctr += 1
-            router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.12.%i/24'%_ip_ctr, network_name='eg_network_measurement_%i'%_patch_ctr)]
-            if _ip_ctr >= 254:
-                logging.warn("Networks with more than 126 measurement instruments are not supported :(")
-            _patch_ctr += 1
-            _ip_ctr += 1
-
         # disable default routes on network measurement instruments
         for n in self.network_measurement_instruments:
             n.box.install_scripts.append('while ip route del default; do :; done')
+
+        for n in self.network_measurement_instruments:
+
+            nm_address = "10.11.12.%i/24" % _ip_ctr
+            router_address = "10.11.12.%i/24" % (_ip_ctr + 1)
+
+            n.box.network_interfaces += [
+                VBoxInternalNetworkingInterface(
+                    address=nm_address, peer_address=router_address,
+                    network_name='eg_network_measurement_%i' % _patch_ctr)]
+            router.box.network_interfaces += [
+                VBoxInternalNetworkingInterface(
+                    address=router_address, peer_address=nm_address,
+                    network_name='eg_network_measurement_%i' % _patch_ctr)]
+            if _ip_ctr >= 254:
+                logging.warn("Networks with more than 126 measurement \
+                        instruments are not supported :(")
+            _patch_ctr += 1
+            _ip_ctr += 2
 
         # "patch" censorship providers to the router
 
@@ -123,8 +135,8 @@ class NetworkTopology(object):
             logging.error("Multiple censorship providers are not supported just yet")
             sys.exit(0)
 
-        router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', network_name='eg_censorship_provider_1')]
-        self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', network_name='eg_censorship_provider_1')]
+        router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', peer_address="10.11.13.2/24", network_name='eg_censorship_provider_1')]
+        self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', peer_address='10.11.13.l/24', network_name='eg_censorship_provider_1')]
 
         boxes = [n.box for n in self.network_measurement_instruments] +\
             [c.box for c in self.censorship_providers] + [router.box]
