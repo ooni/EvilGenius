@@ -12,7 +12,8 @@ from evilgenius.networking import VBoxInternalNetworkingInterface, NetworkTopolo
 
 
 class VagrantBox(object):
-    def __init__(self, name, box="precise32", install_scripts=[], script_folder=None):
+    def __init__(self, name, box="precise32", install_scripts=[],
+                 network_scripts=[], script_folder=None):
         # We strip the "-" char, because Vagrant does not like it since it
         # interprets it as an operator.
         self.name = name.replace("-", "")
@@ -22,6 +23,9 @@ class VagrantBox(object):
         if not type(install_scripts) is list:
             install_scripts = [install_scripts]
         self.install_scripts = install_scripts
+        if not type(network_scripts) is list:
+            network_scripts = [network_scripts]
+        self.network_scripts = network_scripts
         self.script_folder = script_folder
 
     @property
@@ -32,6 +36,7 @@ class VagrantBox(object):
 
         install_scripts = self.install_scripts
 
+
         # Prepare network interfaces
         network_configuration_lines = ""
         interface_number = 2
@@ -41,6 +46,8 @@ class VagrantBox(object):
             install_scripts.append("ip l set eth%i up" % (interface_number - 1,))
             interface_number += 1
 
+
+        install_scripts += self.network_scripts
 
         for script in install_scripts:
             provision_lines += """

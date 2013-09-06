@@ -44,6 +44,7 @@ class ManagedResource(object):
             name=self.id,
             box=self.config['box'],
             install_scripts=install_scripts,
+            network_scripts=[],
             script_folder=os.path.abspath(os.path.dirname(descriptor_path)))
 
 

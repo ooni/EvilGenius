@@ -106,10 +106,6 @@ class NetworkTopology(object):
 
         router = self.router
 
-        # disable default routes on network measurement instruments
-        for n in self.network_measurement_instruments:
-            n.box.install_scripts.append('while ip route del default; do :; done')
-
         for n in self.network_measurement_instruments:
 
             nm_address = "10.11.12.%i/24" % _ip_ctr
@@ -123,20 +119,28 @@ class NetworkTopology(object):
                 VBoxInternalNetworkingInterface(
                     address=router_address, peer_address=nm_address,
                     network_name='eg_network_measurement_%i' % _patch_ctr)]
+
+            n.box.network_scripts += ["while ip route del default; do :; done"]
+            n.box.network_scripts += ["ip r a default via %s" % router_address.split("/")[0]]
+
             if _ip_ctr >= 254:
                 logging.warn("Networks with more than 126 measurement \
                         instruments are not supported :(")
             _patch_ctr += 1
             _ip_ctr += 2
 
-        # "patch" censorship providers to the router
 
+        # "patch" censorship providers to the router
         if len(self.censorship_providers) > 1:
             logging.error("Multiple censorship providers are not supported just yet")
             sys.exit(0)
 
         router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', peer_address="10.11.13.2/24", network_name='eg_censorship_provider_1')]
         self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', peer_address='10.11.13.l/24', network_name='eg_censorship_provider_1')]
+
+        # announce route to network measurement instruments
+        self.censorship_providers[0].box.network_scripts += ["ip r a 10.11.12.0/24 via 10.11.13.1"]
+
 
         boxes = [n.box for n in self.network_measurement_instruments] +\
             [c.box for c in self.censorship_providers] + [router.box]
