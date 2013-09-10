@@ -141,6 +141,8 @@ class NetworkTopology(object):
         # announce route to network measurement instruments
         self.censorship_providers[0].box.network_scripts += ["ip r a 10.11.12.0/24 via 10.11.13.1"]
 
+        # route all traffic through censorship provider
+        router.box.network_scripts += ["while ip route del default; do :; done", "ip r a default via 10.11.13.2"]
 
         boxes = [n.box for n in self.network_measurement_instruments] +\
             [c.box for c in self.censorship_providers] + [router.box]
