@@ -26,24 +26,26 @@ class ManagedResource(object):
 
         # prepare instal scripts in order
         if type(self.config['before_install']) is list:
-            install_scripts = self.config['before_install']
+            before_install = self.config['before_install']
         else:
-            install_scripts = [self.config['before_install']]
+            before_install = [self.config['before_install']]
 
         if type(self.config['install']) is list:
-            install_scripts.extend(self.config['install'])
+            install = self.config['install']
         else:
-            install_scripts.append(self.config['install'])
+            install = [self.config['install']]
 
         if type(self.config['after_install']) is list:
-            install_scripts.extend(self.config['after_install'])
+            after_install = self.config['after_install']
         else:
-            install_scripts.append(self.config['after_install'])
+            after_install = [self.config['after_install']]
 
         self.box = VagrantBox(
             name=self.id,
             box=self.config['box'],
-            install_scripts=install_scripts,
+            before_install=before_install,
+            install=install,
+            after_install=after_install,
             network_scripts=[],
             script_folder=os.path.abspath(os.path.dirname(descriptor_path)))
 
@@ -111,7 +113,7 @@ class Router(object):
             "echo 1 > /proc/sys/net/ipv4/ip_forward",
         ]
 
-        self.box = VagrantBox(name='router', install_scripts=setup_scripts,
+        self.box = VagrantBox(name='router', install=setup_scripts,
                               box='precise32')
 
 

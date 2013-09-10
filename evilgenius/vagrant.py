@@ -12,21 +12,32 @@ from evilgenius.networking import VBoxInternalNetworkingInterface, NetworkTopolo
 
 
 class VagrantBox(object):
-    def __init__(self, name, box="precise32", install_scripts=[],
-                 network_scripts=[], script_folder=None):
+    def __init__(self, name, box="precise32", before_install=[], install=[],
+                 after_install=[], network_scripts=[], script_folder=None):
         # We strip the "-" char, because Vagrant does not like it since it
         # interprets it as an operator.
         self.name = name.replace("-", "")
 
         self.network_interfaces = []
         self.box = box
-        if not type(install_scripts) is list:
-            install_scripts = [install_scripts]
-        self.install_scripts = install_scripts
-        if not type(network_scripts) is list:
-            network_scripts = [network_scripts]
-        self.network_scripts = network_scripts
         self.script_folder = script_folder
+
+        if type(before_install) is not list:
+            self.before_install = [before_install]
+        else:
+            self.before_install = before_install
+        if type(install) is not list:
+            self.nstall = [install]
+        else:
+            self.install = install
+        if type(after_install) is not list:
+            self.after_install = [after_install]
+        else:
+            self.after_install = after_install
+        if type(network_scripts) is not list:
+            self.network_scripts = [network_scripts]
+        else:
+            self.network_scripts = network_scripts
 
     @property
     def definition(self):
@@ -34,20 +45,22 @@ class VagrantBox(object):
 
         # Prepare provisioning lines
 
-        install_scripts = self.install_scripts
-
+        before_install = self.before_install
+        install = self.install
+        after_install = self.after_install
+        network_scripts = self.network_scripts
+        network_config = []
 
         # Prepare network interfaces
         network_configuration_lines = ""
         interface_number = 2
         for iface in self.network_interfaces:
             network_configuration_lines += iface.config_lines(interface_number, self.name)
-            install_scripts.append("ip a add %s dev eth%i" % (iface.address, interface_number - 1))
-            install_scripts.append("ip l set eth%i up" % (interface_number - 1,))
+            network_config.append("ip a add %s dev eth%i" % (iface.address, interface_number - 1))
+            network_config.append("ip l set eth%i up" % (interface_number - 1,))
             interface_number += 1
 
-
-        install_scripts += self.network_scripts
+        install_scripts = before_install + install + network_config + network_scripts + after_install
 
         for script in install_scripts:
             provision_lines += """
