@@ -108,8 +108,8 @@ class NetworkTopology(object):
 
         for n in self.network_measurement_instruments:
 
-            nm_address = "10.11.12.%i/24" % _ip_ctr
-            router_address = "10.11.12.%i/24" % (_ip_ctr + 1)
+            nm_address = "10.11.12.%i/32" % _ip_ctr
+            router_address = "10.11.12.%i/32" % (_ip_ctr + 1)
 
             n.box.network_interfaces += [
                 VBoxInternalNetworkingInterface(
@@ -119,6 +119,8 @@ class NetworkTopology(object):
                 VBoxInternalNetworkingInterface(
                     address=router_address, peer_address=nm_address,
                     network_name='eg_network_measurement_%i' % _patch_ctr)]
+            n.box.network_scripts += ["ip r a %s dev eth1" % router_address]
+            router.box.network_scripts += ["ip r a %s dev eth%i" % (nm_address, _patch_ctr)]
 
             n.box.network_scripts += ["while ip route del default; do :; done"]
             n.box.network_scripts += ["ip r a default via %s" % router_address.split("/")[0]]
