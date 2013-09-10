@@ -1,16 +1,24 @@
-name: DNS Censorship
-description: performs DNS censorship thanks to squid
+name: No Censorship
+description: Do not perform censorship; use as base for your own providers.
 box: precise32
 
 # This shall be run once when first setting up the censorship virtual machine
-install: echo "Hello, World!"
+after_install:
+  - /sbin/sysctl -w net.ipv4.ip_forward=1
+  - /sbin/iptables -F
+  - /sbin/iptables --delete-chain
+  - /sbin/iptables -t nat -F
+  - /sbin/iptables -t nat --delete-chain
+  - iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE
+  - iptables --append FORWARD --in-interface eth1 -j ACCEPT
+  - echo "asdf"
 before_install:
   - echo "Hello, World!"
-after_install:
+install:
   - echo "Hello, World!"
 
 # This shall be run every time the censorship vm starts
-start: echo "Hello, World!"
+start: /sbin/sysctl -w net.ipv4.ip_forward=1
 
 # This shall be run every time the censorship vm stops
-stop: echo "Hello, World!"
+stop: /sbin/sysctl -w net.ipv4.ip_forward=0
