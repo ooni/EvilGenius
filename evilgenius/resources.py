@@ -98,7 +98,7 @@ class NetworkMeasurementInstrument(ManagedResource):
         """
         Run the network measurement instrument.
         """
-        output_lines = self.controller.run_command(self.config['run'], vm=self.id)
+        output_lines = self.controller.run_command(self.config['run'], vm=self.box.name)
         with open(logfile, 'w') as f:
             for line in output_lines:
                 f.write(line)
