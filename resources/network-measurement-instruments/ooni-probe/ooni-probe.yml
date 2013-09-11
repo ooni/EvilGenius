@@ -1,0 +1,15 @@
+name: ooni-probe
+description: Probe program for the Open Observatori of Network Interference
+box: precise32
+
+# This shall be run once when first setting up the network measurement virtual machine
+install: 
+        - sh /scripts/install-ooni-probe.sh
+
+before_install: 
+        - echo "Hello, World!"
+after_install:
+        - echo "Hello, World!"
+
+# This is the command that executes the network measurment software
+run: sudo su; cd /opt/ooni-probe; ./bin/ooniprobe -i decks/before_i_commit.testdeck
