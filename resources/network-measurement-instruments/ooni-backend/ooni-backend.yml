@@ -1,0 +1,14 @@
+name: ooni-backend
+description: Probe program for the Open Observatori of Network Interference
+box: precise32
+
+# This shall be run once when first setting up the network measurement virtual machine
+install: 
+        - sh /scripts/install-ooni-backend.sh
+before_install: 
+        - echo "Hello, World!"
+after_install:
+        - echo "Hello, World!"
+
+# This is the command that executes the network measurment software
+run: echo "asdf"
