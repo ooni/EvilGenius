@@ -49,4 +49,5 @@ pip install -r requirements.txt --use-mirrors
 echo "Installing oonib"
 python setup.py install
 
+cp /scripts/oonib.conf /opt/ooni-backend/oonib.conf
 cd /opt/ooni-backend; bin/oonib &
