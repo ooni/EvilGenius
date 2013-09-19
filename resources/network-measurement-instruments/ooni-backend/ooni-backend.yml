@@ -1,5 +1,5 @@
 name: ooni-backend
-description: Probe program for the Open Observatori of Network Interference
+description: Backend for the Open Observatory of Network Interference
 box: precise32
 
 # This shall be run once when first setting up the network measurement virtual machine
