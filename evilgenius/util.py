@@ -1,6 +1,7 @@
 import threading
 import Queue
 
+
 class AsynchronousFileReader(threading.Thread):
     '''
     Helper class to implement asynchronous reading of a file
@@ -14,7 +15,8 @@ class AsynchronousFileReader(threading.Thread):
 
         Args:
             fd(file-like object): File Descriptor, typically stdout or stderr
-            queue(:class:`Queue.Queue`): Queue object where the output lines are stored
+            queue(:class:`Queue.Queue`): Queue object where the output lines
+                are stored
             action(callable): will be called for each line, think logging, etc.
         """
         assert isinstance(queue, Queue.Queue)

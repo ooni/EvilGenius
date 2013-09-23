@@ -16,7 +16,20 @@ except ImportError:
 
 
 class ManagedResource(object):
+    """
+    I am a base class for all types of machines we want to manage within
+    EvilGenius
+    """
     def __init__(self, descriptor_path, controller):
+        """
+        Create Managed Resource, save path of descriptor and bind it to
+        a :class:`evilgenius.vagrant.VagrantController` object
+
+        Args:
+            descriptor_path (str): Path to the descriptor file
+            controller (:class:`evilgenius.vagrant.VagrantController`):
+                VagrantController to bind to.
+        """
         with open(descriptor_path) as f:
             self.config = yaml.load(f)
 
@@ -51,22 +64,25 @@ class ManagedResource(object):
 
 
 class CensorshipProvider(ManagedResource):
+    """
+    Box doing censorship for the test network
+    """
     def __init__(self, descriptor_path, controller):
         ManagedResource.__init__(self, descriptor_path=descriptor_path,
                                  controller=controller)
+
     def start(self):
         """
-        Starts the censorship provider.
+        Run the censorship provider's `run` command
         """
         self.controller.up(vm=self.id)
-        print self.controller.run_command(self.config.start)
+        self.controller.run_command(self.config.start)
 
     def stop(self):
         """
-        Stops the censorship provider and runs all the commands to be run in
-        the stop phase.
+        Run the censorship provider's `stop` command
         """
-        print self.controller.run_command(self.config.stop)
+        self.controller.run_command(self.config.stop)
 
     def status(self):
         """
@@ -87,25 +103,38 @@ class CensorshipProvider(ManagedResource):
 
         return self.controller.status(vm=self.id)
 
-        pass
-
 
 class NetworkMeasurementInstrument(ManagedResource):
-     def __init__(self, descriptor_path, controller):
+    """
+    Box doing experiments in the simulated network
+    """
+    def __init__(self, descriptor_path, controller):
         ManagedResource.__init__(self, descriptor_path=descriptor_path,
                                  controller=controller)
-     def run(self, logfile):
+
+    def run(self, logfile):
         """
         Run the network measurement instrument.
         """
-        output_lines = self.controller.run_command(self.config['run'], vm=self.box.name)
+        output_lines = self.controller.run_command(self.config['run'],
+                                                   vm=self.box.name)
         with open(logfile, 'w') as f:
             for line in output_lines:
                 f.write(line)
 
 
 class Router(object):
+    """
+    Box that concentrates network measurement instruments and simplifies
+    granting each of them network access
+    """
     def __init__(self, controller):
+        """
+        Create router.
+
+        Args:
+            controller (:class:`evilgenius.vagrant.VagrantController`)
+        """
         self.id = 'router'
         self.controller = controller
 
@@ -132,24 +161,29 @@ class EvilGeniusResources(object):
                                          'resources'))
 
     def __init__(self):
-        self.censorship_provider_directory = opj(self.resources_path,
-                                                 'censorship-providers')
-        self.network_measurement_directory = opj(self.resources_path,
-                                                 'network-measurement-instruments')
+        self.censorship_provider_directory = \
+            opj(self.resources_path, 'censorship-providers')
+        self.network_measurement_directory = \
+            opj(self.resources_path, 'network-measurement-instruments')
         self.censorship_providers = {}
         self.network_measurement_instruments = {}
 
-        for cp_descriptor in glob(self.censorship_provider_directory + '/*/*.yml'):
+        for cp_descriptor in glob(self.censorship_provider_directory +
+                                  '/*/*.yml'):
             cp_id = os.path.basename(os.path.dirname(cp_descriptor))
             with open(cp_descriptor) as f:
                 self.censorship_providers[cp_id] = yaml.load(f)
 
-        for nm_descriptor in glob(self.network_measurement_directory + '/*/*.yml'):
+        for nm_descriptor in glob(self.network_measurement_directory +
+                                  '/*/*.yml'):
             nm_id = os.path.basename(os.path.dirname(nm_descriptor))
             with open(nm_descriptor) as f:
                 self.network_measurement_instruments[nm_id] = yaml.load(f)
 
     def list_censorship_providers(self):
+        """
+        Print out a list of all censorship providers we can find.
+        """
         print "== [ Censorship Providers ] =="
         print ""
         for key, content in self.censorship_providers.items():
@@ -159,6 +193,9 @@ class EvilGeniusResources(object):
         print ""
 
     def list_network_measurement_instruments(self):
+        """
+        Print out a list of all network measurement instruments we can find.
+        """
         print "== [ Network Measurement Instruments ] =="
         print ""
         for key, content in self.network_measurement_instruments.items():

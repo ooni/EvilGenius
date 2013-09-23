@@ -1,6 +1,7 @@
 import sys
 import logging
 
+
 class NetworkInterface(object):
     """
     Represents a virtual Network Interface
@@ -15,6 +16,7 @@ class NetworkInterface(object):
         if address:
             self.address = address  # TODO check validity
 
+
 class VBoxInternalNetworkingInterface(NetworkInterface):
     """
     Represents a internal Networking Interface specific to VirtualBox
@@ -25,13 +27,13 @@ class VBoxInternalNetworkingInterface(NetworkInterface):
 
         Args:
             address (string): IPv4 address with netmask, like "10.11.12.13/24"
-            peer_address (string): IPv4 address with netmask, like "10.11.12.13/24"
+            peer_address (string): IPv4 address with netmask, like
+                "10.11.12.13/24"
             network_name (string): Name of the internal network to be used.
         """
         NetworkInterface.__init__(self, address)
         self.peer_address = peer_address
         self.network_name = network_name
-
 
     def config_lines(self, interface_number, vm_name):
         """
@@ -40,8 +42,8 @@ class VBoxInternalNetworkingInterface(NetworkInterface):
             vm_name (str): name of the vm.
 
         Returns:
-            list(str): Configuration lines for adding this Interface to the boxes
-                definition.
+            list(str): Configuration lines for adding this Interface to
+                the boxes definition.
         """
         code = """
         {vm_name}.vm.provider :virtualbox do |vb|
@@ -57,17 +59,12 @@ class VBoxNatInterface(NetworkInterface):
     """
     Represents a internal Networking Interface specific to VirtualBox
     """
-    def __init__(self):
+    def __init__(self, network_name):
         """
         Create an internal Networking Interface. Specific to VirtualBox.
-
-        Args:
-            address (string): IPv4 address with netmask, like "10.11.12.13/24"
-            network_name (string): Name of the internal network to be used.
         """
         NetworkInterface.__init__(self)
         self.network_name = network_name
-
 
     def config_line(self, interface_number, vm_name):
         """
@@ -80,6 +77,7 @@ class VBoxNatInterface(NetworkInterface):
                 definition.
         """
 
+
 class NetworkTopology(object):
     """
     This class shall be used to store the topology of the network.
@@ -87,6 +85,18 @@ class NetworkTopology(object):
 
     def __init__(self, router=None, censorship_providers=[],
                  network_measurement_instruments=[]):
+        """
+        Create a network topology
+
+        Args:
+            router (:class:`evilgenius.resources.Router`): Router for the
+                censorship simulation network
+            censorship_providers (list): List of
+                :class:`evilgenius.resources.CensorshipProvider` objects
+            censorship_providers (list): List of
+                :class:`evilgenius.resources.NetworkMeasurementInstrument`
+                objects
+        """
         self.router = router
         self.censorship_providers = censorship_providers
         self.network_measurement_instruments = network_measurement_instruments
@@ -95,8 +105,7 @@ class NetworkTopology(object):
     def vagrantfile(self):
         """
         Returns:
-            :class:`evilgenius.vagrant.VagrantFile` with all the boxes, nicely
-                patched together and ready to pull up
+            str with the finished vagrantfile
         """
 
         # "patch" network_measurement instruments to the router
@@ -120,10 +129,12 @@ class NetworkTopology(object):
                     address=router_address, peer_address=nm_address,
                     network_name='eg_network_measurement_%i' % _patch_ctr)]
             n.box.network_scripts += ["ip r a %s dev eth1" % router_address]
-            router.box.network_scripts += ["ip r a %s dev eth%i" % (nm_address, _patch_ctr)]
+            router.box.network_scripts += ["ip r a %s dev eth%i" %
+                                           (nm_address, _patch_ctr)]
 
             n.box.network_scripts += ["while ip route del default; do :; done"]
-            n.box.network_scripts += ["ip r a default via %s" % router_address.split("/")[0]]
+            n.box.network_scripts += ["ip r a default via %s" %
+                                      router_address.split("/")[0]]
 
             if _ip_ctr >= 254:
                 logging.warn("Networks with more than 126 measurement \
@@ -131,20 +142,30 @@ class NetworkTopology(object):
             _patch_ctr += 1
             _ip_ctr += 2
 
-
         # "patch" censorship providers to the router
         if len(self.censorship_providers) > 1:
-            logging.error("Multiple censorship providers are not supported just yet")
+            logging.error("Multiple censorship providers are not supported")
             sys.exit(0)
 
-        router.box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.1/24', peer_address="10.11.13.2/24", network_name='eg_censorship_provider_1')]
-        self.censorship_providers[0].box.network_interfaces += [VBoxInternalNetworkingInterface(address='10.11.13.2/24', peer_address='10.11.13.l/24', network_name='eg_censorship_provider_1')]
+        router.box.network_interfaces += [
+            VBoxInternalNetworkingInterface(
+                address='10.11.13.1/24',
+                peer_address="10.11.13.2/24",
+                network_name='eg_censorship_provider_1')]
+        self.censorship_providers[0].box.network_interfaces += [
+            VBoxInternalNetworkingInterface(
+                address='10.11.13.2/24',
+                peer_address='10.11.13.l/24',
+                network_name='eg_censorship_provider_1')]
 
         # announce route to network measurement instruments
-        self.censorship_providers[0].box.network_scripts += ["ip r a 10.11.12.0/24 via 10.11.13.1"]
+        self.censorship_providers[0].box.network_scripts += \
+            ["ip r a 10.11.12.0/24 via 10.11.13.1"]
 
         # route all traffic through censorship provider
-        router.box.network_scripts += ["while ip route del default; do :; done", "ip r a default via 10.11.13.2"]
+        router.box.network_scripts += \
+            ["while ip route del default; do :; done",
+             "ip r a default via 10.11.13.2"]
 
         boxes = [n.box for n in self.network_measurement_instruments] +\
             [c.box for c in self.censorship_providers] + [router.box]
