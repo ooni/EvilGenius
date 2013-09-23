@@ -1,6 +1,0 @@
-zone "example.com." {
-        type master;
-        file "/etc/bind/example.com.zone";
-        allow-transfer { any; };
-        allow-query { any; };
-};
