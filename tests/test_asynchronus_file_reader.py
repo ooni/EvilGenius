@@ -19,7 +19,7 @@ class TestAsynchronusFileReader(TestCase):
         stdout_reader.join()
 
     def test_file_reader_with_timed_output(self):
-        p = subprocess.Popen(shlex.split('/sbin/ping -c 1 -t 1 goatse.cx'), stdout=subprocess.PIPE, cwd='/tmp/')
+        p = subprocess.Popen('ping -c 1 -t 1 goatse.cx', shell=True, stdout=subprocess.PIPE, cwd='/tmp/')
         stdout_queue = Queue.Queue()
         def print_line(line):
             pass

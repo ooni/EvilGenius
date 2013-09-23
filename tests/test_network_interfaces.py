@@ -2,10 +2,11 @@ from unittest import TestCase
 
 class TestNetworkingInterfaces(TestCase):
     def test_internal_networking_interface(self):
-        from evilgenius.vagrant import VagrantBox, VBoxInternalNetworkingInterface
+        from evilgenius.vagrant import VagrantBox
+        from evilgenius.networking import VBoxInternalNetworkingInterface
 
         testbox = VagrantBox(box="precise32", install=["echo 'Hello, World!'"],
-                            name='testbox')
+                             name='testbox')
 
         iface = VBoxInternalNetworkingInterface(address="10.11.12.13", peer_address="10.11.12.14", network_name="asdf")
 
