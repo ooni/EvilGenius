@@ -9,7 +9,8 @@ sys.path[:] = map(os.path.abspath, sys.path)
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 
 from evilgenius.resources import CensorshipProvider, NetworkMeasurementInstrument, Router, EvilGeniusResources
-from evilgenius.vagrant import VagrantController, NetworkTopology, VagrantBox
+from evilgenius.vagrant import VagrantController, VagrantBox
+from evilgenius.networking import NetworkTopology
 
 import logging
 
