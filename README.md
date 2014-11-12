@@ -179,3 +179,16 @@ strategies that should facilitate debugging.
   * If something breaks and you're not sure why, remove the command from the
     descriptor file and boot the network up without it. then `vagrant ssh` into
     the box in question and try to execute it by hand.
+
+### Wishlist
+
+It would be nice to have censorship providers for the following types of censorship mechanisms:
+
+
+* A transparent HTTP proxy (based on squid)
+
+* NAT traversal
+
+* HTTP proxy blocking certain sites
+
+* DNS based censorship
